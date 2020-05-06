@@ -33,8 +33,8 @@ public class DynamicListenerConfig {
     private ApplicationContext applicationContext;
 
 
-    private String broker = "tcp://localhost:61616";
-    private String queueName = "demo-one";
+    private String broker;
+    private String queueName;
 
     @PostConstruct
     public void init() throws Exception{
@@ -49,17 +49,23 @@ public class DynamicListenerConfig {
             queueName = environment.getProperty("amh.mq.queue");
         }else {
             LOGGER.info("Default configuration!!!");
+            broker = "tcp://localhost:61616";
+            queueName = "demo-one";
         }
 
         LOGGER.info("MQ Broker URL ############ ::: "+ broker);
         LOGGER.info("MQ Queue Name ############ ::: "+ queueName);
 
+        LOGGER.info("Configuring JMSListener!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
         SingletonBeanRegistry beanRegistry = configurableApplicationContext.getBeanFactory();
         beanRegistry.registerSingleton("connectionFactory", connectionFactory());
         beanRegistry.registerSingleton("adapterQueue", adapterQueue(applicationContext.getBean(MsgListenerQueue.class)));
         beanRegistry.registerSingleton("jmsQueue", getQueue((MessageListenerAdapter) applicationContext.getBean("adapterQueue")));
         beanRegistry.registerSingleton("jmsTemplate1", jmsTemplate1());
+
+        LOGGER.info("JMSListener Configuration DONE:-) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
     }
 
     public ConnectionFactory connectionFactory(){
