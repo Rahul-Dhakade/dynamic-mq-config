@@ -24,14 +24,14 @@ public class DemoController {
 
     @GetMapping("/demo/msg1/{message}")
     public ResponseEntity<?> publishMsg1(@PathVariable String message){
-        LOGGER.info("publish message on queue");
+        LOGGER.info("publish message on demo-one queue");
         jmsTemplate1.convertAndSend("demo-one",message);
         return new ResponseEntity<>("Message sent to demo-one", HttpStatus.OK);
     }
 
     @GetMapping("/demo/msg2/{message}")
     public ResponseEntity<?> publishMsg2(@PathVariable String message){
-        LOGGER.info("publish message on queue");
+        LOGGER.info("publish message on demo-two queue");
         jmsTemplate1.convertAndSend("demo-two",message);
         return new ResponseEntity<>("Message sent to demo-two", HttpStatus.OK);
     }
