@@ -1,23 +1,13 @@
 package com.rd.kafka.demo.config;
 
-import com.rd.kafka.demo.producer.MyProducer;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.listener.SimpleMessageListenerContainer;
-import org.springframework.jms.listener.adapter.MessageListenerAdapter;
-import org.springframework.jms.support.converter.SimpleMessageConverter;
-
-import javax.jms.ConnectionFactory;
-import java.text.MessageFormat;
 
 
 @Configuration
-public class ProducerConfigure {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProducerConfigure.class);
+public class StaticListenerConfigure {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticListenerConfigure.class);
 
     private String broker = "tcp://localhost:61616";
     private String queueName = "demo-one";

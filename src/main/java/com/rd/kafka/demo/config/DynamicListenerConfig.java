@@ -1,6 +1,6 @@
-package com.rd.kafka.demo.producer;
+package com.rd.kafka.demo.config;
 
-import com.rd.kafka.demo.config.MsgListenerQueue;
+import com.rd.kafka.demo.listener.MsgListenerQueue;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,33 +8,51 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.SimpleMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
-import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import java.text.MessageFormat;
 
-@Component
-public class MyProducer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MyProducer.class);
+@Configuration
+public class DynamicListenerConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicListenerConfig.class);
 
-    @Value("${myvar}")
-    private String myVar;
+    @Value("${mqSelector}")
+    private String mqSelector;
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private ApplicationContext applicationContext;
 
 
+    private String broker = "tcp://localhost:61616";
+    private String queueName = "demo-one";
 
     @PostConstruct
     public void init() throws Exception{
 
-        LOGGER.info("################### Postcunstruct "+ myVar);
+        LOGGER.info("################### MQ-Selector::: "+ mqSelector);
+
+        if("emx".equals(mqSelector)){
+            broker = environment.getProperty("emx.mq.url");
+            queueName = environment.getProperty("emx.mq.queue");
+        }else if("amh".equals(mqSelector)){
+            broker = environment.getProperty("amh.mq.url");
+            queueName = environment.getProperty("amh.mq.queue");
+        }else {
+            LOGGER.info("Default configuration!!!");
+        }
+
+        LOGGER.info("MQ Broker URL ############ ::: "+ broker);
+        LOGGER.info("MQ Queue Name ############ ::: "+ queueName);
 
         ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
         SingletonBeanRegistry beanRegistry = configurableApplicationContext.getBeanFactory();
@@ -44,10 +62,6 @@ public class MyProducer {
         beanRegistry.registerSingleton("jmsTemplate1", jmsTemplate1());
     }
 
-    private String broker = "tcp://localhost:61616";
-    private String queueName = "demo-one";
-
-//    @Bean
     public ConnectionFactory connectionFactory(){
         LOGGER.debug("<<<<<< Loading connectionFactory");
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
@@ -55,6 +69,7 @@ public class MyProducer {
         LOGGER.debug(MessageFormat.format("{0} loaded sucesfully >>>>>>>", broker));
         return connectionFactory;
     }
+
     /**
      * Queue listener container.
      * This method configure a listener for a queue
@@ -62,11 +77,9 @@ public class MyProducer {
      * @see MessageListenerAdapter
      * @see SimpleMessageListenerContainer
      **/
-//    @Bean(name = "jmsQueue")
     public SimpleMessageListenerContainer getQueue(MessageListenerAdapter adapterQueue) throws Exception{
         LOGGER.debug("<<<<<< Loading Listener Queue");
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        // settings for listener: connectonFactory,Topic name,MessageListener and PubSubDomain (false if is a queue)
         container.setConnectionFactory((ConnectionFactory) applicationContext.getBean("connectionFactory"));
         container.setDestinationName(queueName);
         container.setMessageListener(adapterQueue);
@@ -84,9 +97,8 @@ public class MyProducer {
      * @return MessageListenerAdapter
      * @see MessageListenerAdapter
      **/
-//    @Bean(name = "adapterQueue")
-    public MessageListenerAdapter adapterQueue(MsgListenerQueue queue)
-    {
+
+    public MessageListenerAdapter adapterQueue(MsgListenerQueue queue) {
         MessageListenerAdapter listener =  new MessageListenerAdapter(queue);
         listener.setDefaultListenerMethod("onMessage");
         listener.setMessageConverter(new SimpleMessageConverter());
@@ -99,7 +111,6 @@ public class MyProducer {
      * @return JmsTemplate
      * @see JmsTemplate
      */
-//    @Bean(name = "jmsTemplate1")
     public JmsTemplate jmsTemplate1() throws Exception {
         return new JmsTemplate((ConnectionFactory) applicationContext.getBean("connectionFactory"));
     }

@@ -1,6 +1,5 @@
 package com.rd.kafka.demo.resource;
 
-import com.rd.kafka.demo.producer.MyProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +22,17 @@ public class DemoController {
     @Qualifier("jmsTemplate1")
     private JmsTemplate jmsTemplate1;
 
-    @GetMapping("/demo/msg/{message}")
-    public ResponseEntity<?> publishMsg(@PathVariable String message){
+    @GetMapping("/demo/msg1/{message}")
+    public ResponseEntity<?> publishMsg1(@PathVariable String message){
         LOGGER.info("publish message on queue");
         jmsTemplate1.convertAndSend("demo-one",message);
-        return new ResponseEntity<>("Success", HttpStatus.OK);
+        return new ResponseEntity<>("Message sent to demo-one", HttpStatus.OK);
+    }
+
+    @GetMapping("/demo/msg2/{message}")
+    public ResponseEntity<?> publishMsg2(@PathVariable String message){
+        LOGGER.info("publish message on queue");
+        jmsTemplate1.convertAndSend("demo-two",message);
+        return new ResponseEntity<>("Message sent to demo-two", HttpStatus.OK);
     }
 }

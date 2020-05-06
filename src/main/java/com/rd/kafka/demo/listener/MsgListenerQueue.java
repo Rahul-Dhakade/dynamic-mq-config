@@ -1,4 +1,4 @@
-package com.rd.kafka.demo.config;
+package com.rd.kafka.demo.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class MsgListenerQueue {
 	public void onMessage(String msg) 
 	{	
 		LOGGER.debug(msg);
-		LOGGER.info("Received message.............. "+msg);
+		LOGGER.info("Received message on MsgListener:::..............:::: "+msg);
 	}
 
 }
