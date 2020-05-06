@@ -63,7 +63,7 @@ public class DynamicListenerConfig {
     }
 
     public ConnectionFactory connectionFactory(){
-        LOGGER.debug("<<<<<< Loading connectionFactory");
+        LOGGER.info("<<<<<< Loading connectionFactory");
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
         connectionFactory.setBrokerURL(broker);
         LOGGER.debug(MessageFormat.format("{0} loaded sucesfully >>>>>>>", broker));
@@ -78,7 +78,7 @@ public class DynamicListenerConfig {
      * @see SimpleMessageListenerContainer
      **/
     public SimpleMessageListenerContainer getQueue(MessageListenerAdapter adapterQueue) throws Exception{
-        LOGGER.debug("<<<<<< Loading Listener Queue");
+        LOGGER.info("<<<<<< Loading Listener Queue");
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory((ConnectionFactory) applicationContext.getBean("connectionFactory"));
         container.setDestinationName(queueName);
