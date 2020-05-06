@@ -18,6 +18,9 @@ import org.slf4j.Logger;
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class DynamicListenerConfig {
@@ -56,13 +59,26 @@ public class DynamicListenerConfig {
         LOGGER.info("MQ Broker URL ############ ::: "+ broker);
         LOGGER.info("MQ Queue Name ############ ::: "+ queueName);
 
+        /**
+         * If we want listen on multiple queues of same source
+         */
+        List<String> queues = new ArrayList<>();
+        if(queueName.contains(",")){
+            queues = Arrays.asList(queueName.split(","));
+        }else {
+            queues.add(queueName);
+        }
+
         LOGGER.info("Configuring JMSListener!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
         SingletonBeanRegistry beanRegistry = configurableApplicationContext.getBeanFactory();
         beanRegistry.registerSingleton("connectionFactory", connectionFactory());
         beanRegistry.registerSingleton("adapterQueue", adapterQueue(applicationContext.getBean(MsgListenerQueue.class)));
-        beanRegistry.registerSingleton("jmsQueue", getQueue((MessageListenerAdapter) applicationContext.getBean("adapterQueue")));
         beanRegistry.registerSingleton("jmsTemplate1", jmsTemplate1());
+
+        for(String queue: queues){
+            beanRegistry.registerSingleton("jmsQueue"+queue.trim(), getQueue((MessageListenerAdapter) applicationContext.getBean("adapterQueue"), queue.trim()));
+        }
 
         LOGGER.info("JMSListener Configuration DONE:-) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
@@ -83,11 +99,11 @@ public class DynamicListenerConfig {
      * @see MessageListenerAdapter
      * @see SimpleMessageListenerContainer
      **/
-    public SimpleMessageListenerContainer getQueue(MessageListenerAdapter adapterQueue) throws Exception{
+    public SimpleMessageListenerContainer getQueue(MessageListenerAdapter adapterQueue, String queue) throws Exception{
         LOGGER.info("<<<<<< Loading Listener Queue");
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory((ConnectionFactory) applicationContext.getBean("connectionFactory"));
-        container.setDestinationName(queueName);
+        container.setDestinationName(queue);
         container.setMessageListener(adapterQueue);
         container.setPubSubDomain(false);
         LOGGER.debug("Listener Queue loaded >>>>>>>");
