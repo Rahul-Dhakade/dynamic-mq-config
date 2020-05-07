@@ -53,7 +53,7 @@ public class DynamicListenerConfig {
         }else {
             LOGGER.info("Default configuration!!!");
             broker = "tcp://localhost:61616";
-            queueName = "demo-one";
+            queueName = "emx.queue1";
         }
 
         LOGGER.info("MQ Broker URL ############ ::: "+ broker);
@@ -63,8 +63,8 @@ public class DynamicListenerConfig {
          * If we want listen on multiple queues of same source
          */
         List<String> queues = new ArrayList<>();
-        if(queueName.contains(",")){
-            queues = Arrays.asList(queueName.split(","));
+        if(queueName.contains(":")){
+            queues = Arrays.asList(queueName.split(":"));
         }else {
             queues.add(queueName);
         }

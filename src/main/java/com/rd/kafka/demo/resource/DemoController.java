@@ -24,15 +24,21 @@ public class DemoController {
 
     @GetMapping("/demo/msg1/{message}")
     public ResponseEntity<?> publishMsg1(@PathVariable String message){
-        LOGGER.info("publish message on demo-one queue");
-        jmsTemplate1.convertAndSend("demo-one",message);
-        return new ResponseEntity<>("Message sent to demo-one", HttpStatus.OK);
+        LOGGER.info("publish message on emx.queue1 queue");
+        jmsTemplate1.convertAndSend("emx.queue1",message);
+        LOGGER.info("publish message on emx.queue2 queue");
+        jmsTemplate1.convertAndSend("emx.queue2",message);
+        return new ResponseEntity<>("Message sent to queues emx.queue1 and emx.queue2", HttpStatus.OK);
     }
 
     @GetMapping("/demo/msg2/{message}")
     public ResponseEntity<?> publishMsg2(@PathVariable String message){
-        LOGGER.info("publish message on demo-two queue");
-        jmsTemplate1.convertAndSend("demo-two",message);
-        return new ResponseEntity<>("Message sent to demo-two", HttpStatus.OK);
+        LOGGER.info("publish message on amh.queue1 queue");
+        jmsTemplate1.convertAndSend("amh.queue1",message);
+        LOGGER.info("publish message on amh.queue2 queue");
+        jmsTemplate1.convertAndSend("amh.queue2",message);
+        LOGGER.info("publish message on amh.queue3 queue");
+        jmsTemplate1.convertAndSend("amh.queue3",message);
+        return new ResponseEntity<>("Message sent to queues amh.queue1,amh.queue2 and amh.queue3", HttpStatus.OK);
     }
 }
